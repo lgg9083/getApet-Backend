@@ -9,5 +9,6 @@ router.post(
   imageUpload.array("images"),
   PetsContoller.create
 );
-
+router.get("/", PetsContoller.getAll)
+router.get("/mypets", verifyToken, PetsContoller.getAllByUser)
 module.exports = router;
