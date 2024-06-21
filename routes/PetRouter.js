@@ -11,4 +11,6 @@ router.post(
 );
 router.get("/", PetsContoller.getAll)
 router.get("/mypets", verifyToken, PetsContoller.getAllByUser)
+router.get('/myadpotions', verifyToken, PetsContoller.getAllUserAdpoter)
+router.get('/:id', verifyToken, PetsContoller.getPetById)
 module.exports = router;

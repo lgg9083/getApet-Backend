@@ -65,6 +65,7 @@ module.exports = class UserController {
   }
   static async login(req, res) {
     const { email, password } = req.body;
+    console.log(email, password)
     if (!email) {
       res.status(422).json({ message: "O email é obrigátorio!" });
       return;
@@ -82,6 +83,7 @@ module.exports = class UserController {
       });
       return;
     }
+    console.log(password, user.password)
     const checkPassword = await bcrypt.compare(password, user.password);
 
     if (!checkPassword) {

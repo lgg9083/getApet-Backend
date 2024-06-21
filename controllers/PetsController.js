@@ -1,7 +1,7 @@
 const Pet = require("../models/Pet");
 const getToken = require("../services/get-token");
 const getUserToken = require("../services/get-User-token");
-
+const objectId = require("mongoose").Types.ObjectId;
 module.exports = class PetsController {
   static async create(req, res) {
     const { name, age, color, weight } = req.body;
@@ -71,6 +71,40 @@ module.exports = class PetsController {
 
     res.status(200).json({
       pets: pets,
+    });
+  }
+  static async getAllUserAdpoter(req, res) {
+    const token = getToken(req);
+    const userPet = getUserToken(token);
+    console.log(userPet);
+    const pets = await Pet.find({ "adpoter._id": userPet.user }).sort(
+      "-createdAt"
+    );
+    console.log(pets);
+    res.status(200).json({
+      pets: pets,
+    });
+  }
+  static async getPetById(req, res) {
+    const id = req.params.id;
+
+    if (!objectId.isValid(id)) {
+      res.status(422).json({
+        message: "O id informado não é valido",
+      });
+      return;
+    }
+    const pet = await Pet.findOne({ _id: id });
+
+    if (!pet) {
+      res.status(404).json({
+        message: "Pet não encontrado",
+      });
+      return;
+    }
+
+    res.status(200).json({
+      pet: pet,
     });
   }
 };
