@@ -107,4 +107,110 @@ module.exports = class PetsController {
       pet: pet,
     });
   }
+  static async removePetByID(req, res) {
+    const id = req.params.id;
+
+    if (!objectId.isValid(id)) {
+      res.status(422).json({
+        message: "O id informado não é valido",
+      });
+      return;
+    }
+    const pet = await Pet.findOne({ _id: id });
+
+    if (!pet) {
+      res.status(404).json({
+        message: "Pet não encontrado",
+      });
+      return;
+    }
+
+    const token = getToken(req);
+    const user = await getUserToken(token);
+
+    if (pet._id.toString() !== user._id.toString()) {
+      res.status(422).json({
+        message:
+          "Um erro aconteceu ao tentar processar a sua solicitação, tente novamente mais tarde!",
+      });
+      return;
+    }
+
+    await Pet.findByIdAndDelete(id);
+
+    res.status(200).json({ message: "Pet removido com sucesso" });
+  }
+
+  static async uptdatedPet(req, res) {
+    const id = req.params.id;
+    const { name, age, color, weight, available } = req.body;
+
+    const images = req.files;
+    const updatedPet = {};
+
+    if (!objectId.isValid(id)) {
+      res.status(422).json({
+        message: "O id informado não é valido",
+      });
+      return;
+    }
+    const pet = await Pet.findOne({ _id: id });
+
+    if (!pet) {
+      res.status(404).json({
+        message: "Pet não encontrado",
+      });
+      return;
+    }
+    const token = getToken(req);
+    const user = await getUserToken(token);
+
+    if (pet._id.toString() !== user._id.toString()) {
+      res.status(422).json({
+        message:
+          "Um erro aconteceu ao tentar processar a sua solicitação, tente novamente mais tarde!",
+      });
+      return;
+    }
+
+    if (!name) {
+      res.status(200).json({ message: "O nome é obrigátorio" });
+      return;
+    } else {
+      updatedPet.name = name;
+    }
+    if (!age) {
+      res.status(200).json({ message: "a idade é obrigátorio" });
+      return;
+    } else {
+      updatedPet.age = age;
+    }
+    if (!color) {
+      res.status(200).json({ message: "A cor é obrigátorio" });
+      return;
+    } else {
+      updatedPet.color = color;
+    }
+    if (!weight) {
+      res.status(200).json({ message: "O tamanho é obrigátorio" });
+      return;
+    } else {
+      updatedPet.weight = weight;
+    }
+    if (!images) {
+      res.status(200).json({ message: "O Imagem é obrigátorio" });
+      return;
+    } else {
+      updatedPet.images = [];
+      images.map((image) => {
+        updatedPet.images.push(image);
+      });
+    }
+
+    await Pet.findByIdAndUpdate(id);
+
+    res.status(200).json({
+      message: "Pet Atualizado com sucesso",
+    });
+  }
 };
