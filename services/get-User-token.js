@@ -7,9 +7,8 @@ const getUserToken = async (token) => {
   }
   const decoded = jwt.decode(token, "TOKENINCREMENT");
   const id = decoded.id;
-  console.log(id);
+
   const user = await User.findById(id);
-  console.log(user, 'user do ger')
 
   return user;
 };

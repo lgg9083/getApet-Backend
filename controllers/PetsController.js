@@ -5,7 +5,7 @@ const objectId = require("mongoose").Types.ObjectId;
 module.exports = class PetsController {
   static async create(req, res) {
     const { name, age, color, weight } = req.body;
-
+    console.log("read");
     const available = true;
     const images = req.files;
     if (!name) {
@@ -212,5 +212,47 @@ module.exports = class PetsController {
     res.status(200).json({
       message: "Pet Atualizado com sucesso",
     });
+  }
+  static async adopterPet(req, res) {
+    const id = req.params.id;
+    const pet = await Pet.findOne({ _id: id });
+
+    if (!pet) {
+      res.status(404).json({
+        message: "Pet não encontrado",
+      });
+      return;
+    }
+    const token = getToken(req);
+    const user = await getUserToken(token);
+    console.log(pet.user._id, "pets");
+    console.log(user._id);
+    if (pet.user._id.equals(user._id)) {
+      res.status(422).json({
+        message: "Você não pode adotar seu proprio Pet!",
+      });
+      return;
+    }
+    if (pet.adopter) {
+      if (pet.adopter._id.equals(user._id)) {
+        res.status(422).json({
+          message: "Você ja agendou uma visita para este Pet",
+        });
+        return;
+      }
+    }
+
+    pet.adopter = {
+      _id: user._id,
+      name: user.name,
+      image: user.imagem
+
+    }
+
+    await Pet.findByIdAndUpdate(id, pet)
+
+    res.status(200).json({
+      message: `A visita foi agendada com sucesso, entre em contado com ${pet.user.name} pelo telefone ${pet.user.phone}`
+    })
   }
 };

@@ -4,4 +4,5 @@ const getToken = (req) => {
 
   return token;
 };
+
 module.exports = getToken;
