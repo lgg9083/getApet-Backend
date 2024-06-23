@@ -245,14 +245,42 @@ module.exports = class PetsController {
     pet.adopter = {
       _id: user._id,
       name: user.name,
-      image: user.imagem
+      image: user.imagem,
+    };
 
-    }
-
-    await Pet.findByIdAndUpdate(id, pet)
+    await Pet.findByIdAndUpdate(id, pet);
 
     res.status(200).json({
-      message: `A visita foi agendada com sucesso, entre em contado com ${pet.user.name} pelo telefone ${pet.user.phone}`
-    })
+      message: `A visita foi agendada com sucesso, entre em contado com ${pet.user.name} pelo telefone ${pet.user.phone}`,
+    });
+  }
+  static async confirmAdopterPet(req, res) {
+    const id = req.params.id;
+    const pet = await Pet.findOne({ _id: id });
+
+    if (!pet) {
+      res.status(404).json({
+        message: "Pet não encontrado",
+      });
+      return;
+    }
+    const token = getToken(req);
+    const user = await getUserToken(token);
+
+    if (pet._id.toString() !== user._id.toString()) {
+      res.status(422).json({
+        message:
+          "Um erro aconteceu ao tentar processar a sua solicitação, tente novamente mais tarde!",
+      });
+      return;
+    }
+
+    pet.available = false;
+
+    await Pet.findByIdAndUpdate(id, pet);
+
+    res.status(200).json({
+      message: "Parábens o ciclo de adoção foi concluido com sucesso!",
+    });
   }
 };

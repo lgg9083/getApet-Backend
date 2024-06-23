@@ -22,4 +22,5 @@ router.patch(
   PetsController.uptdatedPet
 );
 router.patch("/schedule/:id", verifyToken, PetsContoller.adopterPet);
+router.patch("/concludes/:id", verifyToken, PetsContoller.confirmAdopterPet);
 module.exports = router;
