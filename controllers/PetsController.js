@@ -4,28 +4,30 @@ const getUserToken = require("../services/get-User-token");
 const objectId = require("mongoose").Types.ObjectId;
 module.exports = class PetsController {
   static async create(req, res) {
+    console.log("bateu");
     const { name, age, color, weight } = req.body;
     console.log("read");
     const available = true;
     const images = req.files;
+    console.log(images);
     if (!name) {
-      res.status(200).json({ message: "O nome é obrigátorio" });
+      res.status(422).json({ message: "O nome é obrigátorio" });
       return;
     }
     if (!age) {
-      res.status(200).json({ message: "a idade é obrigátorio" });
+      res.status(422).json({ message: "a idade é obrigátorio" });
       return;
     }
     if (!color) {
-      res.status(200).json({ message: "A cor é obrigátorio" });
+      res.status(422).json({ message: "A cor é obrigátorio" });
       return;
     }
     if (!weight) {
-      res.status(200).json({ message: "O tamanho é obrigátorio" });
+      res.status(422).json({ message: "O tamanho é obrigátorio" });
       return;
     }
     if (!images) {
-      res.status(200).json({ message: "O Imagem é obrigátorio" });
+      res.status(422).json({ message: "O Imagem é obrigátorio" });
       return;
     }
 
@@ -65,8 +67,7 @@ module.exports = class PetsController {
   }
   static async getAllByUser(req, res) {
     const token = getToken(req);
-    const user = getUserToken(token);
-
+    const user = await getUserToken(token);
     const pets = await Pet.find({ "user._id": user._id }).sort("-createdAt");
 
     res.status(200).json({
@@ -108,8 +109,9 @@ module.exports = class PetsController {
     });
   }
   static async removePetByID(req, res) {
+    console.log("aqui");
     const id = req.params.id;
-
+    console.log(id);
     if (!objectId.isValid(id)) {
       res.status(422).json({
         message: "O id informado não é valido",
@@ -117,7 +119,6 @@ module.exports = class PetsController {
       return;
     }
     const pet = await Pet.findOne({ _id: id });
-
     if (!pet) {
       res.status(404).json({
         message: "Pet não encontrado",
@@ -127,8 +128,7 @@ module.exports = class PetsController {
 
     const token = getToken(req);
     const user = await getUserToken(token);
-
-    if (pet._id.toString() !== user._id.toString()) {
+    if (pet.user._id.toString() !== user._id.toString()) {
       res.status(422).json({
         message:
           "Um erro aconteceu ao tentar processar a sua solicitação, tente novamente mais tarde!",
@@ -165,7 +165,7 @@ module.exports = class PetsController {
     const token = getToken(req);
     const user = await getUserToken(token);
 
-    if (pet._id.toString() !== user._id.toString()) {
+    if (pet.user._id.toString() !== user._id.toString()) {
       res.status(422).json({
         message:
           "Um erro aconteceu ao tentar processar a sua solicitação, tente novamente mais tarde!",
@@ -197,10 +197,7 @@ module.exports = class PetsController {
     } else {
       updatedPet.weight = weight;
     }
-    if (!images) {
-      res.status(200).json({ message: "O Imagem é obrigátorio" });
-      return;
-    } else {
+    if (images.length > 0) {
       updatedPet.images = [];
       images.map((image) => {
         updatedPet.images.push(image);
