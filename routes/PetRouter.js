@@ -13,7 +13,7 @@ router.post(
 router.get("/", PetsContoller.getAll);
 router.get("/mypets", verifyToken, PetsContoller.getAllByUser);
 router.get("/myadpotions", verifyToken, PetsContoller.getAllUserAdpoter);
-router.get("/:id", verifyToken, PetsContoller.getPetById);
+router.get("/:id", PetsContoller.getPetById);
 router.delete("/:id", verifyToken, PetsContoller.removePetByID);
 router.patch(
   "/:id",
@@ -21,6 +21,6 @@ router.patch(
   imageUpload.array("images"),
   PetsController.uptdatedPet
 );
-router.patch("/schedule/:id", verifyToken, PetsContoller.adopterPet);
+router.patch("/schedule/:id", verifyToken, PetsContoller.schedule);
 router.patch("/concludes/:id", verifyToken, PetsContoller.confirmAdopterPet);
 module.exports = router;

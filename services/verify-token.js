@@ -12,6 +12,7 @@ const verifytoken = (req, res, next) => {
     return;
   }
   try {
+    console.log(token)
     const verified = jwt.verify(token, "TOKENINCREMENT");
     req.user = verified;
     next();
