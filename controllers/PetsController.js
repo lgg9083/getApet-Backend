@@ -227,7 +227,6 @@ module.exports = class PetsController {
       return
     }
 
-    // check if user has already adopted this pet
     if (pet.adopter) {
       if (pet.adopter._id.equals(user._id)) {
         res.status(422).json({
